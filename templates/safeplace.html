@@ -1,0 +1,66 @@
+<html>  
+<head>
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    <meta name="viewport" content="initial-scale=1.0,
+                width=device-width" />
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"
+        type="text/javascript" charset="utf-8"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"
+        type="text/javascript" charset="utf-8"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"
+        type="text/javascript" charset="utf-8"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"
+        type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
+</head>
+<body style='margin: 0'>
+<div style="width: 100%; height: 100%" id="mapContainer"></div>
+<script>    
+    // Initialize the platform object:
+    var platform = new H.service.Platform({
+    'apikey': 'XujoMqMsn85MRHf3Nbu-xh9xPobEZF0tqFc8vX2mfsE'
+    });
+    const lat = 37.78564049163236;
+    const long = -122.45030675679493;
+    // Obtain the default map types from the platform object
+    var defaultLayers = platform.createDefaultLayers();
+    // Instantiate (and display) a map object:
+    var map = new H.Map(
+        document.getElementById('mapContainer'),
+        defaultLayers.vector.normal.map,
+        {
+            zoom: 13,
+            center: { lat: lat, lng: long }
+        }
+    );
+    var mapEvents = new H.mapevents.MapEvents(map);
+    var ui = H.ui.UI.createDefault(map, defaultLayers);
+    '{% for safeplace in safeplaces %}'
+    var nlat = '{{ safeplace.geoCode.latitude }}'
+    var nlong = '{{ safeplace.geoCode.longitude }}'
+    var marker = new H.map.Marker({ lat: nlat, lng: nlong });
+    content = '<h4>{{safeplace.name}}</h4> \
+    <ul> \
+        {% for safetyScore in safeplace.safetyScores %} \
+        <li>{{ safetyScore }} : {{ safeplace.safetyScores[safetyScore] }}</li> \
+        {% endfor %} \
+    </ul>'
+    marker.setData(content);
+    marker.addEventListener("tap", event => {
+        console.log("clicked")
+        const bubble = new H.ui.InfoBubble(
+            event.target.getGeometry(),
+            {
+                content: event.target.getData()
+            }
+        );
+        ui.addBubble(bubble);
+    }, false);
+    // Add the marker to the map:
+    map.addObject(marker);
+    '{% endfor %}'
+</script>
+</body>
+</html>
